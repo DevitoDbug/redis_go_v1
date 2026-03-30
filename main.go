@@ -39,6 +39,10 @@ func main() {
 			os.Exit(1)
 		}
 
-		conn.Write([]byte("+OK\r\n"))
+		_, err = conn.Write([]byte("+OK\r\n"))
+		if err != nil {
+			fmt.Printf("fail to write response. Error %v/n", err)
+			os.Exit(1)
+		}
 	}
 }
