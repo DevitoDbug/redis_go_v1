@@ -93,7 +93,7 @@ func (r *Resp) readArray() (*Value, error) {
 	}
 
 	v.array = make([]Value, arraySize)
-	for range arraySize - 1 {
+	for range arraySize {
 		val, err := r.Read()
 		if err != nil {
 			return nil, err
@@ -124,6 +124,7 @@ func (r *Resp) readBulk() (*Value, error) {
 	if err != nil {
 		return nil, err
 	}
+	v.bulk = string(bulk)
 
 	// Read trailing CRLF
 	_, _, err = r.readLine()

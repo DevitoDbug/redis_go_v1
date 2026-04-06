@@ -38,7 +38,7 @@ func main() {
 			return
 		}
 
-		fmt.Printf("%v: %+v\n", port, val)
+		fmt.Printf("%v: %v\n", port, *val)
 
 		_, _ = conn.Write([]byte("+OK\r\n"))
 	}
