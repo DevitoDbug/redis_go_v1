@@ -2,17 +2,20 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"net"
 	"os"
+
+	"github.com/DevitoDbug/redis_go_v1/resp"
 )
 
 func main() {
-	listener, err := net.Listen("tcp", ":6379")
+	port := ":6379"
+	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
+	fmt.Printf("listening to port %v\n", port)
 
 	conn, err := listener.Accept()
 	if err != nil {
@@ -27,22 +30,16 @@ func main() {
 	}()
 
 	for {
-		buf := make([]byte, 1024)
-
-		// Read message from client
-		_, err := conn.Read(buf)
+		resp := resp.NewResp(conn)
+		val, err := resp.Read()
 		if err != nil {
-			if err == io.EOF {
-				break
-			}
-			fmt.Printf("failed to accept connection. Error:%v\n", err)
+			fmt.Printf("failed to read from connection. Error:%v", err)
 			os.Exit(1)
+			return
 		}
 
-		_, err = conn.Write([]byte("+OK\r\n"))
-		if err != nil {
-			fmt.Printf("fail to write response. Error %v/n", err)
-			os.Exit(1)
-		}
+		fmt.Printf("%v: %+v\n", port, val)
+
+		_, _ = conn.Write([]byte("+OK\r\n"))
 	}
 }

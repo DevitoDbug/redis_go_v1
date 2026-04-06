@@ -30,7 +30,6 @@ func (r *Resp) Read() (*Value, error) {
 		return r.readArray()
 	case BULK:
 		return r.readBulk()
-
 	default:
 		return nil, fmt.Errorf("invalid input type")
 	}
