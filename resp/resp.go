@@ -38,7 +38,7 @@ func (r *Resp) Read() (*Value, error) {
 // Example input - *2\r\n$5\r\nhello\r\n$5\r\nworld\r\n
 func (r *Resp) readArray() (*Value, error) {
 	v := &Value{}
-	v.typ = "array"
+	v.Typ = "array"
 
 	// start has been read
 	arraySize, _, err := r.readInt()
@@ -46,7 +46,7 @@ func (r *Resp) readArray() (*Value, error) {
 		return nil, err
 	}
 
-	v.array = make([]Value, arraySize)
+	v.Array = make([]Value, arraySize)
 	for range arraySize {
 		val, err := r.Read()
 		if err != nil {
@@ -57,7 +57,7 @@ func (r *Resp) readArray() (*Value, error) {
 			return nil, fmt.Errorf("missing value in input stream")
 		}
 
-		v.array = append(v.array, *val)
+		v.Array = append(v.Array, *val)
 	}
 
 	return v, nil
@@ -66,7 +66,7 @@ func (r *Resp) readArray() (*Value, error) {
 // readBulk - reads bulk type from the input stream
 func (r *Resp) readBulk() (*Value, error) {
 	v := &Value{}
-	v.typ = "bulk"
+	v.Typ = "bulk"
 
 	bulkSize, _, err := r.readInt() // Reads until the \r\n no need to worry about the initial one
 	if err != nil {
@@ -78,7 +78,7 @@ func (r *Resp) readBulk() (*Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	v.bulk = string(bulk)
+	v.Bulk = string(bulk)
 
 	// Read trailing CRLF
 	_, _, err = r.readLine()

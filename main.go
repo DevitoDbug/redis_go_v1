@@ -30,8 +30,8 @@ func main() {
 	}()
 
 	for {
-		resp := resp.NewResp(conn)
-		val, err := resp.Read()
+		r := resp.NewResp(conn)
+		val, err := r.Read()
 		if err != nil {
 			fmt.Printf("failed to read from connection. Error:%v", err)
 			os.Exit(1)
@@ -40,6 +40,11 @@ func main() {
 
 		fmt.Printf("%v: %v\n", port, *val)
 
-		_, _ = conn.Write([]byte("+OK\r\n"))
+		writer := resp.NewWriter(conn)
+		err = writer.Write(resp.Value{Typ: "string", Str: "OK"})
+		if err != nil {
+			fmt.Printf("failed to write response to user. Err:%v", err)
+			os.Exit(1)
+		}
 	}
 }
