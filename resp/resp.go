@@ -46,7 +46,7 @@ func (r *Resp) readArray() (*Value, error) {
 		return nil, err
 	}
 
-	v.Array = make([]Value, arraySize)
+	v.Array = make([]Value, 0, arraySize)
 	for range arraySize {
 		val, err := r.Read()
 		if err != nil {
@@ -59,7 +59,6 @@ func (r *Resp) readArray() (*Value, error) {
 
 		v.Array = append(v.Array, *val)
 	}
-
 	return v, nil
 }
 

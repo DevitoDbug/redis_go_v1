@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"strings"
 
 	"github.com/DevitoDbug/redis_go_v1/resp"
 )
@@ -31,20 +32,44 @@ func main() {
 
 	for {
 		r := resp.NewResp(conn)
-		val, err := r.Read()
+		requestValue, err := r.Read()
 		if err != nil {
 			fmt.Printf("failed to read from connection. Error:%v", err)
 			os.Exit(1)
 			return
 		}
 
-		fmt.Printf("%v: %v\n", port, *val)
-
 		writer := resp.NewWriter(conn)
-		err = writer.Write(resp.Value{Typ: "string", Str: "OK"})
+		if requestValue == nil {
+			err = writer.Write(resp.Value{Typ: "error", Err: "value read was empty"})
+			if err != nil {
+				fmt.Printf("failed to write response to user. Err:%v", err)
+				os.Exit(1)
+			}
+			continue
+		}
+
+		if len(requestValue.Array) == 0 {
+			fmt.Println("no array value detected")
+			continue
+		}
+
+		// Get the respective handler
+		handler := resp.Handler[strings.ToUpper(requestValue.Array[0].Bulk)]
+		if handler == nil {
+			err = writer.Write(resp.Value{Typ: "error", Err: "no handler for the given command"})
+			if err != nil {
+				fmt.Printf("failed to write response to user. Err:%v", err)
+				os.Exit(1)
+			}
+			continue
+		}
+
+		response := handler([]resp.Value{*requestValue})
+		err = writer.Write(response)
 		if err != nil {
 			fmt.Printf("failed to write response to user. Err:%v", err)
-			os.Exit(1)
+			continue
 		}
 	}
 }
