@@ -87,7 +87,7 @@ func (r *Resp) hSet(v []Value) Value {
 		}
 	}
 
-	r.storage.HStoreVal(hKey, map[string]string{hStringKey: hString.String()})
+	r.storage.HStoreVal(hKey, hStringKey, hString.String())
 
 	r.storage.PrintStore() // for debugging
 
