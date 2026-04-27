@@ -22,10 +22,18 @@ func (s *Storage) HStoreVal(key string, value map[string]string) {
 	s.hStoreLock.Unlock()
 }
 
-func (s *Storage) HGetVal(key string) map[string]string {
-	var val map[string]string
+func (s *Storage) HGetVal(hkey, hStringKey string) string {
+	var valMap map[string]string
+	var val string
 	s.hStoreLock.RLock()
-	val = s.hStore[key]
+	valMap, ok := s.hStore[hkey]
+	if !ok {
+		return ""
+	}
+	val, ok = valMap[hStringKey]
+	if !ok {
+		return ""
+	}
 	s.hStoreLock.RUnlock()
 
 	return val

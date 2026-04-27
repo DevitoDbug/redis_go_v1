@@ -24,5 +24,6 @@ func NewStorage() *Storage {
 }
 
 func (s *Storage) PrintStore() {
-	fmt.Printf("\n*******************\nstore:\n%v\n*******************\n", s.store)
+	fmt.Printf("\n*******************\nstore:\n%v\n", s.store)
+	fmt.Printf("\nHStore:\n%v\n*******************\n", s.hStore)
 }

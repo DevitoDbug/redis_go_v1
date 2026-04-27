@@ -62,9 +62,52 @@ func (r *Resp) get(v []Value) Value {
 }
 
 func (r *Resp) hset(v []Value) Value {
-	return Value{}
+	if len(v) < 3 ||
+		v[0].Typ != "bulk" ||
+		v[1].Typ != "bulk" ||
+		v[2].Typ != "bulk" ||
+		strings.TrimSpace(v[0].Bulk) == "" ||
+		strings.TrimSpace(v[1].Bulk) == "" ||
+		strings.TrimSpace(v[2].Bulk) == "" {
+		return Value{Typ: "error", Err: "invalid input, input structure not supported"}
+	}
+
+	hKey := v[0].Bulk
+	hStringKey := v[1].Bulk
+	var hString strings.Builder
+	sep := ""
+
+	// Sample input is user name david ochieng oduor
+	for _, value := range v[2:] {
+		if value.Typ == "bulk" && strings.TrimSpace(value.Bulk) != "" {
+			hString.WriteString(sep)
+			hString.WriteString(value.Bulk)
+			sep = " " // Enable space between words except for the first iteration
+		}
+	}
+
+	r.storage.HStoreVal(hKey, map[string]string{hStringKey: hString.String()})
+
+	r.storage.PrintStore() // for debugging
+
+	return Value{Typ: "string", Str: "Ok"}
 }
 
 func (r *Resp) hget(v []Value) Value {
-	return Value{}
+	if len(v) != 2 ||
+		v[0].Typ != "bulk" ||
+		v[1].Typ != "bulk" ||
+		strings.TrimSpace(v[1].Bulk) == "" ||
+		strings.TrimSpace(v[0].Bulk) == "" {
+		return Value{Typ: "error", Err: "invalid input, input structure not supported for GET command"}
+	}
+
+	hkey := v[0].Bulk
+	hStringkey := v[1].Bulk
+	value := r.storage.HGetVal(hkey, hStringkey)
+	if strings.TrimSpace(value) == "" {
+		return Value{Typ: "error", Err: "value not found"}
+	}
+
+	return Value{Typ: "string", Str: value}
 }
