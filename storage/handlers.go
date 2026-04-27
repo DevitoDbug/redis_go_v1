@@ -15,3 +15,18 @@ func (s *Storage) GetVal(key string) string {
 
 	return val
 }
+
+func (s *Storage) HStoreVal(key string, value map[string]string) {
+	s.hStoreLock.Lock()
+	s.hStore[key] = value
+	s.hStoreLock.Unlock()
+}
+
+func (s *Storage) HGetVal(key string) map[string]string {
+	var val map[string]string
+	s.hStoreLock.RLock()
+	val = s.hStore[key]
+	s.hStoreLock.RUnlock()
+
+	return val
+}

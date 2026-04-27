@@ -8,14 +8,18 @@ import (
 )
 
 type Storage struct {
-	store     map[string]string
-	storeLock sync.RWMutex
+	store      map[string]string
+	hStore     map[string]map[string]string
+	storeLock  sync.RWMutex
+	hStoreLock sync.RWMutex
 }
 
 func NewStorage() *Storage {
 	return &Storage{
-		store:     make(map[string]string),
-		storeLock: sync.RWMutex{},
+		store:      make(map[string]string),
+		storeLock:  sync.RWMutex{},
+		hStore:     map[string]map[string]string{},
+		hStoreLock: sync.RWMutex{},
 	}
 }
 
