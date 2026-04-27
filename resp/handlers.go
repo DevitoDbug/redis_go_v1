@@ -5,12 +5,12 @@ import (
 )
 
 func pong(v []Value) Value {
-	if len(v) <= 1 {
+	if len(v) == 0 {
 		return Value{Typ: "string", Str: "pong"}
 	}
 
 	var outputString strings.Builder
-	for _, value := range v[1:] {
+	for _, value := range v {
 		stringRep := string(value.Bulk)
 
 		outputString.WriteString(stringRep + " ")

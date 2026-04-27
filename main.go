@@ -49,6 +49,9 @@ func main() {
 			continue
 		}
 
+		// TODO: Handle other types that are not arrays, in particular strings. Basically convert them into
+		// arrays so that the code blow this point remains the same
+
 		if len(requestValue.Array) == 0 {
 			fmt.Println("no array value detected")
 			continue
@@ -65,7 +68,7 @@ func main() {
 			continue
 		}
 
-		response := handler(requestValue.Array)
+		response := handler(requestValue.Array[1:])
 		err = writer.Write(response)
 		if err != nil {
 			fmt.Printf("failed to write response to user. Err:%v", err)
