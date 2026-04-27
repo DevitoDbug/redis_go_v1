@@ -8,8 +8,9 @@ func (r *Resp) loadHandlers() {
 	r.Handlers["PING"] = r.pong
 	r.Handlers["SET"] = r.set
 	r.Handlers["GET"] = r.get
-	r.Handlers["HSET"] = r.hset
-	r.Handlers["HGET"] = r.hget
+	r.Handlers["HSET"] = r.hSet
+	r.Handlers["HGET"] = r.hGet
+	r.Handlers["HGETALL"] = r.hGetAll
 }
 
 func (r *Resp) pong(v []Value) Value {
@@ -61,7 +62,7 @@ func (r *Resp) get(v []Value) Value {
 	return Value{Typ: "string", Str: value}
 }
 
-func (r *Resp) hset(v []Value) Value {
+func (r *Resp) hSet(v []Value) Value {
 	if len(v) < 3 ||
 		v[0].Typ != "bulk" ||
 		v[1].Typ != "bulk" ||
@@ -93,7 +94,7 @@ func (r *Resp) hset(v []Value) Value {
 	return Value{Typ: "string", Str: "Ok"}
 }
 
-func (r *Resp) hget(v []Value) Value {
+func (r *Resp) hGet(v []Value) Value {
 	if len(v) != 2 ||
 		v[0].Typ != "bulk" ||
 		v[1].Typ != "bulk" ||
@@ -110,4 +111,25 @@ func (r *Resp) hget(v []Value) Value {
 	}
 
 	return Value{Typ: "string", Str: value}
+}
+
+func (r *Resp) hGetAll(v []Value) Value {
+	if len(v) != 1 ||
+		v[0].Typ != "bulk" ||
+		strings.TrimSpace(v[0].Bulk) == "" {
+		return Value{Typ: "error", Err: "invalid input, input structure not supported for GET command"}
+	}
+
+	hkey := v[0].Bulk
+	hValues := r.storage.HGetAllVal(hkey)
+	var value strings.Builder
+	sep := ""
+
+	for key, hValue := range hValues {
+		value.WriteString(sep)
+		value.WriteString("- " + key + ": " + hValue)
+		sep = "\n"
+	}
+
+	return Value{Typ: "string", Str: value.String()}
 }

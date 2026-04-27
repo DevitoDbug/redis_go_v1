@@ -38,3 +38,16 @@ func (s *Storage) HGetVal(hkey, hStringKey string) string {
 
 	return val
 }
+
+func (s *Storage) HGetAllVal(hkey string) map[string]string {
+	var val map[string]string
+	s.hStoreLock.RLock()
+	val, ok := s.hStore[hkey]
+	if !ok {
+		return nil
+	}
+
+	s.hStoreLock.RUnlock()
+
+	return val
+}
