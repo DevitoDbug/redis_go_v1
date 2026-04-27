@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/DevitoDbug/redis_go_v1/resp"
+	"github.com/DevitoDbug/redis_go_v1/storage"
 )
 
 func main() {
@@ -30,8 +31,10 @@ func main() {
 		}
 	}()
 
+	storage := storage.NewStorage()
+
 	for {
-		r := resp.NewResp(conn)
+		r := resp.NewResp(conn, storage)
 		requestValue, err := r.Read()
 		if err != nil {
 			fmt.Printf("failed to read from connection. Error:%v", err)
@@ -58,7 +61,7 @@ func main() {
 		}
 
 		// Get the respective handler
-		handler := resp.Handler[strings.ToUpper(requestValue.Array[0].Bulk)]
+		handler := r.Handlers[strings.ToUpper(requestValue.Array[0].Bulk)]
 		if handler == nil {
 			err = writer.Write(resp.Value{Typ: "error", Err: "no handler for the given command"})
 			if err != nil {

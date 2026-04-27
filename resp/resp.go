@@ -6,16 +6,25 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+
+	"github.com/DevitoDbug/redis_go_v1/storage"
 )
 
 type Resp struct {
-	reader *bufio.Reader
+	reader   *bufio.Reader
+	storage  *storage.Storage
+	Handlers map[string]func([]Value) Value
 }
 
-func NewResp(rd io.Reader) *Resp {
-	return &Resp{
-		reader: bufio.NewReader(rd),
+func NewResp(rd io.Reader, storage *storage.Storage) *Resp {
+	resp := &Resp{
+		reader:   bufio.NewReader(rd),
+		storage:  storage,
+		Handlers: make(map[string]func([]Value) Value),
 	}
+	resp.loadHandlers()
+
+	return resp
 }
 
 func (r *Resp) Read() (*Value, error) {
