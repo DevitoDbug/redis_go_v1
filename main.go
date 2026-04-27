@@ -65,7 +65,7 @@ func main() {
 			continue
 		}
 
-		response := handler([]resp.Value{*requestValue})
+		response := handler(requestValue.Array)
 		err = writer.Write(response)
 		if err != nil {
 			fmt.Printf("failed to write response to user. Err:%v", err)
