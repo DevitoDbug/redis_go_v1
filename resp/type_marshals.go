@@ -1,6 +1,8 @@
 package resp
 
-import "strconv"
+import (
+	"strconv"
+)
 
 func (v Value) marshalArrray() []byte {
 	response := []byte{}
@@ -30,7 +32,6 @@ func (v Value) marshalString() []byte {
 	response = append(response, STRING)
 	response = append(response, v.Str...)
 	response = append(response, CRLF...)
-
 	return response
 }
 

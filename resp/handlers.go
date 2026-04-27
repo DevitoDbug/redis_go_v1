@@ -122,14 +122,16 @@ func (r *Resp) hGetAll(v []Value) Value {
 
 	hkey := v[0].Bulk
 	hValues := r.storage.HGetAllVal(hkey)
-	var value strings.Builder
-	sep := ""
+	values := []Value{}
 
 	for key, hValue := range hValues {
-		value.WriteString(sep)
-		value.WriteString("- " + key + ": " + hValue)
-		sep = "\n"
+		values = append(values,
+			Value{
+				Typ:  "bulk",
+				Bulk: key + ": " + hValue,
+			},
+		)
 	}
 
-	return Value{Typ: "string", Str: value.String()}
+	return Value{Typ: "array", Array: values}
 }

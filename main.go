@@ -74,7 +74,7 @@ func main() {
 		response := handler(requestValue.Array[1:])
 		err = writer.Write(response)
 		if err != nil {
-			fmt.Printf("failed to write response to user. Err:%v", err)
+			fmt.Printf("failed to write response to user. \nErr:%v", err)
 			continue
 		}
 	}

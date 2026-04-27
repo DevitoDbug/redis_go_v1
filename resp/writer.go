@@ -1,6 +1,9 @@
 package resp
 
-import "io"
+import (
+	"fmt"
+	"io"
+)
 
 type Writer struct {
 	writer io.Writer
@@ -17,6 +20,7 @@ func (w *Writer) Write(v Value) error {
 
 	_, err := w.writer.Write(response)
 	if err != nil {
+		fmt.Printf("This is where the program crashes: \n%v\n", err)
 		return err
 	}
 
