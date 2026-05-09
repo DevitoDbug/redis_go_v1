@@ -30,7 +30,7 @@ func NewResp(rd io.Reader, storage *storage.Storage) *Resp {
 func (r *Resp) Read() (*Value, error) {
 	_type, err := r.reader.ReadByte() // first character should tell the type refer to types.go
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 
 	switch _type {

@@ -15,9 +15,10 @@ type Aof struct {
 	mu   sync.Mutex
 }
 
-func NewAof(filePath string) (*Aof, error) {
-	// TODO: test this out using the append flag
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR /*|os.O_APPEND*/, 0o666)
+func NewAof() (*Aof, error) {
+	filePath := "aof/db.aof"
+
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR|os.O_APPEND, 0o666)
 	if err != nil {
 		return nil, err
 	}
