@@ -4,7 +4,7 @@ func (a *Aof) WriteFile(value []byte) error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
-	_, err := a.file.Write(value)
+	_, err := a.writer.Write(value)
 	if err != nil {
 		return err
 	}

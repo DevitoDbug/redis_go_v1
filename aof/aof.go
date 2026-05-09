@@ -4,6 +4,7 @@
 package aof
 
 import (
+	"bufio"
 	"log"
 	"os"
 	"sync"
@@ -11,8 +12,9 @@ import (
 )
 
 type Aof struct {
-	file *os.File
-	mu   sync.Mutex
+	file   *os.File
+	writer *bufio.Writer
+	mu     sync.Mutex
 }
 
 func NewAof() (*Aof, error) {
@@ -24,15 +26,21 @@ func NewAof() (*Aof, error) {
 	}
 
 	aof := &Aof{
-		file: file,
-		mu:   sync.Mutex{},
+		file:   file,
+		mu:     sync.Mutex{},
+		writer: bufio.NewWriter(file),
 	}
 
 	go func() {
 		for {
 			aof.mu.Lock()
-			err := aof.file.Sync() // Basically make sure anything in the buffers and cache are dumped to the file
-			if err != nil {
+			// Data still in the bufio buffer should be flashed into the os
+			if err := aof.writer.Flush(); err != nil {
+				log.Printf("failed to flush aof buffer. Error: %v", err)
+			}
+
+			// Basically make sure anything in the kernel buffers and cache are dumped to the os
+			if err := aof.file.Sync(); err != nil {
 				log.Printf("failed to sync file. Error: %v", err)
 			}
 			aof.mu.Unlock()
