@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/DevitoDbug/redis_go_v1/storage"
+	"github.com/DevitoDbug/redis_go_v1/internals/storage"
 )
 
 type Resp struct {

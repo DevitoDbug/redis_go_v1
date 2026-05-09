@@ -8,9 +8,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/DevitoDbug/redis_go_v1/aof"
-	"github.com/DevitoDbug/redis_go_v1/resp"
-	"github.com/DevitoDbug/redis_go_v1/storage"
+	"github.com/DevitoDbug/redis_go_v1/internals/aof"
+	"github.com/DevitoDbug/redis_go_v1/internals/resp"
+	"github.com/DevitoDbug/redis_go_v1/internals/storage"
 )
 
 func main() {
