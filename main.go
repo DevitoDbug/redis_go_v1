@@ -41,7 +41,7 @@ func main() {
 	}
 
 	// Initialize in memory data for permanent persistence
-	err = persistance.Read(func(f *os.File) error {
+	err = persistance.Read(func(f io.Reader) error {
 		r := resp.NewResp(f, storage)
 
 		for {

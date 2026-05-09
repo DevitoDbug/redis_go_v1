@@ -1,8 +1,10 @@
 package aof
 
-import "os"
+import (
+	"io"
+)
 
-func (a *Aof) Read(callback func(*os.File) error) error {
+func (a *Aof) Read(callback func(io.Reader) error) error {
 	a.mu.Lock()
 
 	err := callback(a.file)
