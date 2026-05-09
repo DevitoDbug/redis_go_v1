@@ -2,10 +2,13 @@ package main
 
 import (
 	"fmt"
+	"io"
+	"log"
 	"net"
 	"os"
 	"strings"
 
+	"github.com/DevitoDbug/redis_go_v1/aof"
 	"github.com/DevitoDbug/redis_go_v1/resp"
 	"github.com/DevitoDbug/redis_go_v1/storage"
 )
@@ -32,6 +35,51 @@ func main() {
 	}()
 
 	storage := storage.NewStorage()
+	persistance, err := aof.NewAof()
+	if err != nil {
+		log.Fatal("could not initialize aof")
+	}
+
+	// Initialize in memory data for permanent persistence
+	err = persistance.Read(func(f *os.File) error {
+		r := resp.NewResp(f, storage)
+
+		for {
+			requestValue, err := r.Read()
+			if err != nil {
+				if err == io.EOF {
+					break
+				} else {
+					fmt.Printf("failed to read content of persistence storage. Error; %v", err)
+					return err
+				}
+			}
+
+			if requestValue == nil {
+				fmt.Println("no value detected")
+				continue
+			}
+
+			if len(requestValue.Array) == 0 {
+				fmt.Println("no array value detected")
+				continue
+			}
+
+			command := strings.ToUpper(requestValue.Array[0].Bulk)
+			args := requestValue.Array[1:]
+
+			handler := r.Handlers[command]
+			if handler == nil {
+				continue
+			}
+
+			_ = handler(args)
+		}
+		return nil
+	})
+	if err != nil {
+		log.Fatal("could not load persisted data")
+	}
 
 	for {
 		r := resp.NewResp(conn, storage)
@@ -60,8 +108,11 @@ func main() {
 			continue
 		}
 
+		command := strings.ToUpper(requestValue.Array[0].Bulk)
+		args := requestValue.Array[1:]
+
 		// Get the respective handler
-		handler := r.Handlers[strings.ToUpper(requestValue.Array[0].Bulk)]
+		handler := r.Handlers[command]
 		if handler == nil {
 			err = writer.Write(resp.Value{Typ: "error", Err: "no handler for the given command"})
 			if err != nil {
@@ -71,7 +122,15 @@ func main() {
 			continue
 		}
 
-		response := handler(requestValue.Array[1:])
+		if command == "SET" || command == "HSET" {
+			err := persistance.WriteFile(requestValue.Marshal())
+			if err != nil {
+				fmt.Printf("failed to write to aof. Err:%v", err)
+				os.Exit(1)
+			}
+		}
+
+		response := handler(args)
 		err = writer.Write(response)
 		if err != nil {
 			fmt.Printf("failed to write response to user. \nErr:%v", err)
