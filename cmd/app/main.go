@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"log/slog"
 	"net"
 	"os"
 	"strings"
@@ -37,6 +38,7 @@ func main() {
 	storage := storage.NewStorage()
 	persistance, err := aof.NewAof()
 	if err != nil {
+		slog.Error("could not initialize aof", "error", err)
 		log.Fatal("could not initialize aof")
 	}
 
